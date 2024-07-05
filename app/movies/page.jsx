@@ -4,16 +4,18 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import UserModel from "@/models/user";
 import LogoutButton from "@/components/logOutButton";
+import { pages } from "next/dist/build/templates/app-page";
 
-export default async function page() {
+export default async function page({searchParams}) {
     const {has, get} = cookies();
     if(!has('user_id')) redirect('/login');
     const userId = await get('user_id').value
     const user = await UserModel.findById(userId);
     if(!user) redirect('/login');
 
+    const page = searchParams.page ?? 1;
 
-    const movies = await fetchMovies();
+    const movies = await fetchMovies(pages);
     console.log(movies);
 
     return(
@@ -35,8 +37,8 @@ export default async function page() {
                 }
             </section>
             <div className="flex gap-6 justify-center">
-                <Link href={""}>Prev</Link>
-                <Link href={""}>Next</Link>
+                <Link href={`/movies?page=${Number(page) - 1}`}>Prev</Link>
+                <Link href={`/movies?page=${Number(page) + 1}`}>Next</Link>
             </div>
         </main>
     );
